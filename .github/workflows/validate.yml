@@ -1,0 +1,39 @@
+# ============================================================
+# PR Validation — runs on every pull request to main
+# Validates bundle config without deploying
+# ============================================================
+name: "Validate Bundle"
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+# Only one validation at a time per PR
+concurrency:
+  group: validate-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: "Validate bundle configuration"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Validate bundle (dev target)
+        run: databricks bundle validate
+        working-directory: .
+        env:
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_BUNDLE_ENV: dev
+
+      - name: Summary
+        if: success()
+        run: echo "✅ Bundle validation passed for target **dev**" >> $GITHUB_STEP_SUMMARY
