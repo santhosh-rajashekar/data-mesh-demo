@@ -23,7 +23,7 @@ jobs:
     name: "Full rebuild on ${{ github.event.inputs.target }}"
     runs-on: ubuntu-latest
     # Require approval for staging/prod
-    environment: ${{ github.event.inputs.target == 'dev' && 'development' || github.event.inputs.target }}
+    environment: ${{ github.event.inputs.target == 'prod' && 'production' || github.event.inputs.target == 'staging' && 'staging' || 'development' }}
 
     steps:
       - name: Checkout repo
