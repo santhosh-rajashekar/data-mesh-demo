@@ -2,13 +2,35 @@
 resources:
   alerts:
     contract_violation:
-      display_name: "Data Contract Violation Detected"
-      query_id: "5c630b22-2ddc-4e07-bab5-1aa4dd999636"
-      condition:
-        op: GREATER_THAN
-        operand:
-          column:
-            name: violation_count
+      display_name: "Data Mesh — Contract Violation Alert"
+      warehouse_id: ${var.warehouse_id}
+
+      query_text: |
+        SELECT
+          COUNT(*) AS violation_count,
+          CONCAT_WS(', ', COLLECT_LIST(c.product_name)) AS violated_products
+        FROM data_mesh_hub.platform.data_contracts c
+        JOIN (
+          SELECT product_id, quality_score, freshness_hours,
+                 ROW_NUMBER() OVER (PARTITION BY product_id ORDER BY check_timestamp DESC) AS rn
+          FROM data_mesh_hub.platform.product_observability
+        ) o ON o.product_id = c.product_id AND o.rn = 1
+        WHERE c.contract_status = 'active'
+          AND (o.freshness_hours > c.agreed_sla_hours OR o.quality_score < c.quality_threshold_pct)
+
+      evaluation:
+        comparison_operator: GREATER_THAN
+        source:
+          type: QUERY_RESULT
+          column_name: violation_count
         threshold:
-          value:
-            double_value: 0
+          type: DOUBLE
+          value: 0
+        empty_result_state: OK
+
+      schedule:
+        cron_expression: "0 */30 * * * ?"
+        pause_status: PAUSED
+
+      custom_summary: "Data contract violations detected in the Data Mesh"
+      custom_description: "Products with violations: {{violated_products}}"

@@ -11,6 +11,7 @@
 
 bundle:
   name: data-mesh-demo
+  engine: direct
 
 variables:
   # Storage
