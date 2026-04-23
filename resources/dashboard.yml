@@ -1,0 +1,7 @@
+# Data Mesh Product Health Dashboard (3 pages, 13 datasets, 20 widgets)
+resources:
+  dashboards:
+    data_mesh_product_health:
+      display_name: "Data Mesh — Product Health Dashboard"
+      file_path: ../src/dashboards/data_mesh_product_health.lvdash.json
+      warehouse_id: ${var.warehouse_id}

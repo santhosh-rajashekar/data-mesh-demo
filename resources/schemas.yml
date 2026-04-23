@@ -1,0 +1,45 @@
+# Schemas follow Medallion Architecture: Bronze → Silver → Gold
+resources:
+  schemas:
+    # ── ADOIT Domain ──
+    adoit_bronze:
+      name: bronze
+      catalog_name: ${var.adoit_catalog}
+      comment: "Raw Zone | Ingested from ADOIT EA tool | Owner: EA Team"
+
+    adoit_silver:
+      name: silver
+      catalog_name: ${var.adoit_catalog}
+      comment: "Curated Zone | Cleansed and enriched | Owner: EA Team"
+
+    adoit_gold:
+      name: gold
+      catalog_name: ${var.adoit_catalog}
+      comment: "Product Zone | Business-ready data products | Owner: EA Team"
+
+    # ── SNOW Domain ──
+    snow_bronze:
+      name: bronze
+      catalog_name: ${var.snow_catalog}
+      comment: "Raw Zone | Ingested from ServiceNow | Owner: ITSM Team"
+
+    snow_silver:
+      name: silver
+      catalog_name: ${var.snow_catalog}
+      comment: "Curated Zone | Cleansed and enriched | Owner: ITSM Team"
+
+    snow_gold:
+      name: gold
+      catalog_name: ${var.snow_catalog}
+      comment: "Product Zone | Business-ready data products | Owner: ITSM Team"
+
+    # ── Hub ──
+    hub_cross_domain:
+      name: cross_domain
+      catalog_name: ${var.hub_catalog}
+      comment: "Cross-domain data products | Federated from multiple domains"
+
+    hub_platform:
+      name: platform
+      catalog_name: ${var.hub_catalog}
+      comment: "Platform governance tables | Registry, contracts, observability"

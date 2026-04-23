@@ -1,0 +1,68 @@
+# Master orchestration job — recreates the entire Data Mesh demo
+# Run: databricks bundle run data_mesh_orchestrator
+resources:
+  jobs:
+    data_mesh_orchestrator:
+      name: "Data Mesh Demo — Full Setup"
+      description: "Runs all Data Mesh notebooks in dependency order to create catalogs, tables, data, governance, and exchange setup."
+      
+      tasks:
+        # ── Phase 1: Infrastructure ──
+        - task_key: setup_infrastructure
+          description: "Create catalogs, schemas, tables, tags, grants, functions"
+          notebook_task:
+            notebook_path: ../src/notebooks/00_Data_Mesh_Overview_and_Setup.ipynb
+          
+        # ── Phase 2: Domain Pipelines (parallel) ──
+        - task_key: adoit_pipeline
+          depends_on:
+            - task_key: setup_infrastructure
+          description: "ADOIT: Bronze → Silver → Gold (Application Landscape)"
+          notebook_task:
+            notebook_path: ../src/notebooks/01_ADOIT_Data_Product_Pipeline.ipynb
+
+        - task_key: snow_pipeline
+          depends_on:
+            - task_key: setup_infrastructure
+          description: "SNOW: Bronze → Silver → Gold (Service Health)"
+          notebook_task:
+            notebook_path: ../src/notebooks/02_SNOW_Data_Product_Pipeline.ipynb
+
+        # ── Phase 3: Cross-Domain Product ──
+        - task_key: cross_domain_product
+          depends_on:
+            - task_key: adoit_pipeline
+            - task_key: snow_pipeline
+          description: "Cross-catalog JOIN: Application Risk Profile"
+          notebook_task:
+            notebook_path: ../src/notebooks/03_Cross_Domain_Data_Product.ipynb
+
+        # ── Phase 4: Quality & Governance ──
+        - task_key: data_quality
+          depends_on:
+            - task_key: cross_domain_product
+          description: "Quality checks across all 3 catalogs"
+          notebook_task:
+            notebook_path: ../src/notebooks/04_Data_Quality_Monitoring.ipynb
+
+        - task_key: governance
+          depends_on:
+            - task_key: data_quality
+          description: "Registry, contracts, observability, maturity scorecard"
+          notebook_task:
+            notebook_path: ../src/notebooks/07_Data_Product_Governance.ipynb
+
+        - task_key: advanced_governance
+          depends_on:
+            - task_key: governance
+          description: "CDF, row-level security, alerting"
+          notebook_task:
+            notebook_path: ../src/notebooks/08_Advanced_Governance.ipynb
+
+        # ── Phase 5: Distribution ──
+        - task_key: private_exchange
+          depends_on:
+            - task_key: advanced_governance
+          description: "Create Delta Sharing shares and update registry"
+          notebook_task:
+            notebook_path: ../src/notebooks/09_Private_Exchange_Setup.ipynb

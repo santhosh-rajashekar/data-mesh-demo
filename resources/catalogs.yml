@@ -1,0 +1,27 @@
+# Unity Catalog domain catalogs for Data Mesh
+# These provide domain autonomy — each team owns their catalog
+resources:
+  catalogs:
+    adoit_product:
+      name: ${var.adoit_catalog}
+      comment: "ADOIT Data Product Catalog | Owner: Enterprise Architecture Team | Domain: Enterprise Architecture"
+      properties:
+        domain: "Enterprise Architecture"
+        owner: "EA Team"
+        data_mesh_role: "Domain Catalog"
+
+    snow_product:
+      name: ${var.snow_catalog}
+      comment: "SNOW Data Product Catalog | Owner: IT Service Management Team | Domain: ITSM"
+      properties:
+        domain: "IT Service Management"
+        owner: "ITSM Team"
+        data_mesh_role: "Domain Catalog"
+
+    data_mesh_hub:
+      name: ${var.hub_catalog}
+      comment: "Data Mesh Hub Catalog | Owner: Data Platform Team | Domain: Cross-Domain"
+      properties:
+        domain: "Cross-Domain"
+        owner: "Data Platform Team"
+        data_mesh_role: "Hub Catalog"

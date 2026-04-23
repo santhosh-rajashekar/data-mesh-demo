@@ -1,0 +1,1782 @@
+{
+  "datasets": [
+    {
+      "name": "product_inventory",
+      "displayName": "Product Inventory",
+      "queryLines": [
+        "SELECT\n",
+        "  'Application Landscape' AS product_name,\n",
+        "  'Enterprise Architecture' AS domain,\n",
+        "  'EA Team' AS owner,\n",
+        "  'adoit_product.gold' AS catalog_schema,\n",
+        "  'Daily' AS refresh_sla,\n",
+        "  COUNT(*) AS record_count\n",
+        "FROM\n",
+        "  adoit_product.gold.application_landscape\n",
+        "UNION ALL\n",
+        "SELECT\n",
+        "  'Service Health',\n",
+        "  'IT Service Management',\n",
+        "  'ITSM Team',\n",
+        "  'snow_product.gold',\n",
+        "  'Hourly',\n",
+        "  COUNT(*)\n",
+        "FROM\n",
+        "  snow_product.gold.service_health\n",
+        "UNION ALL\n",
+        "SELECT\n",
+        "  'Application Risk Profile',\n",
+        "  'Cross-Domain',\n",
+        "  'Platform Team',\n",
+        "  'data_mesh_hub.cross_domain',\n",
+        "  'Daily',\n",
+        "  COUNT(*)\n",
+        "FROM\n",
+        "  data_mesh_hub.cross_domain.application_risk_profile"
+      ]
+    },
+    {
+      "name": "risk_overview",
+      "displayName": "Risk Overview",
+      "queryLines": [
+        "SELECT\n",
+        "  composite_risk_score AS risk_level,\n",
+        "  COUNT(*) AS app_count\n",
+        "FROM\n",
+        "  data_mesh_hub.cross_domain.application_risk_profile\n",
+        "GROUP BY\n",
+        "  composite_risk_score"
+      ]
+    },
+    {
+      "name": "sla_compliance",
+      "displayName": "SLA Compliance",
+      "queryLines": [
+        "SELECT\n",
+        "  al.app_name,\n",
+        "  al.criticality,\n",
+        "  sh.sla_compliance_pct,\n",
+        "  sh.total_incidents,\n",
+        "  sh.sla_breaches\n",
+        "FROM\n",
+        "  snow_product.gold.service_health sh\n",
+        "    JOIN adoit_product.gold.application_landscape al\n",
+        "      ON sh.affected_application_id = al.app_id\n",
+        "ORDER BY\n",
+        "  sh.sla_compliance_pct ASC"
+      ]
+    },
+    {
+      "name": "incident_distribution",
+      "displayName": "Incident Distribution",
+      "queryLines": [
+        "SELECT\n",
+        "  priority_label,\n",
+        "  state,\n",
+        "  COUNT(*) AS incident_count\n",
+        "FROM\n",
+        "  snow_product.silver.incidents\n",
+        "GROUP BY\n",
+        "  priority_label,\n",
+        "  state"
+      ]
+    },
+    {
+      "name": "quality_checks",
+      "displayName": "Quality Checks",
+      "queryLines": [
+        "SELECT\n",
+        "  data_product,\n",
+        "  check_name,\n",
+        "  check_type,\n",
+        "  CASE\n",
+        "    WHEN passed THEN 'PASS'\n",
+        "    ELSE 'FAIL'\n",
+        "  END AS status,\n",
+        "  expected_value,\n",
+        "  actual_value,\n",
+        "  severity\n",
+        "FROM\n",
+        "  data_mesh_hub.platform.data_quality_log\n",
+        "ORDER BY\n",
+        "  passed ASC,\n",
+        "  severity DESC"
+      ]
+    },
+    {
+      "name": "apps_by_dept",
+      "displayName": "Apps by Department",
+      "queryLines": [
+        "SELECT\n",
+        "  department,\n",
+        "  criticality,\n",
+        "  COUNT(*) AS app_count\n",
+        "FROM\n",
+        "  adoit_product.gold.application_landscape\n",
+        "GROUP BY\n",
+        "  department,\n",
+        "  criticality\n",
+        "ORDER BY\n",
+        "  department"
+      ]
+    },
+    {
+      "name": "access_controls",
+      "displayName": "Access Controls",
+      "queryLines": [
+        "SELECT\n",
+        "  'ea-team' AS principal,\n",
+        "  'adoit_product' AS catalog,\n",
+        "  'ALL PRIVILEGES' AS permission,\n",
+        "  'Domain Owner' AS role,\n",
+        "  'Full control of EA domain catalog' AS description\n",
+        "UNION ALL\n",
+        "SELECT\n",
+        "  'itsm-team',\n",
+        "  'snow_product',\n",
+        "  'ALL PRIVILEGES',\n",
+        "  'Domain Owner',\n",
+        "  'Full control of ITSM domain catalog'\n",
+        "UNION ALL\n",
+        "SELECT\n",
+        "  'data-platform-team',\n",
+        "  'data_mesh_hub',\n",
+        "  'ALL PRIVILEGES',\n",
+        "  'Hub Owner',\n",
+        "  'Full control of cross-domain hub'\n",
+        "UNION ALL\n",
+        "SELECT\n",
+        "  'cto-office',\n",
+        "  'adoit_product',\n",
+        "  'SELECT on gold',\n",
+        "  'Consumer',\n",
+        "  'Read-only on EA gold products'\n",
+        "UNION ALL\n",
+        "SELECT\n",
+        "  'cto-office',\n",
+        "  'snow_product',\n",
+        "  'SELECT on gold',\n",
+        "  'Consumer',\n",
+        "  'Read-only on ITSM gold products'\n",
+        "UNION ALL\n",
+        "SELECT\n",
+        "  'cto-office',\n",
+        "  'data_mesh_hub',\n",
+        "  'SELECT on cross_domain',\n",
+        "  'Consumer',\n",
+        "  'Read-only on cross-domain products'\n",
+        "UNION ALL\n",
+        "SELECT\n",
+        "  'risk-committee',\n",
+        "  'snow_product',\n",
+        "  'SELECT on gold',\n",
+        "  'Consumer',\n",
+        "  'Read-only on service health'\n",
+        "UNION ALL\n",
+        "SELECT\n",
+        "  'risk-committee',\n",
+        "  'data_mesh_hub',\n",
+        "  'SELECT on cross_domain',\n",
+        "  'Consumer',\n",
+        "  'Read-only on risk profiles'\n",
+        "UNION ALL\n",
+        "SELECT\n",
+        "  'ea-team',\n",
+        "  'snow_product',\n",
+        "  'NONE',\n",
+        "  'No Access',\n",
+        "  'EA team cannot access ITSM raw data'\n",
+        "UNION ALL\n",
+        "SELECT\n",
+        "  'itsm-team',\n",
+        "  'adoit_product',\n",
+        "  'NONE',\n",
+        "  'No Access',\n",
+        "  'ITSM team cannot access EA raw data'"
+      ]
+    },
+    {
+      "name": "quality_trend",
+      "displayName": "Quality Score Trend",
+      "queryLines": [
+        "SELECT\n",
+        "  product_name,\n",
+        "  DATE(check_timestamp) AS check_date,\n",
+        "  quality_score\n",
+        "FROM\n",
+        "  data_mesh_hub.platform.product_observability\n",
+        "ORDER BY\n",
+        "  check_timestamp"
+      ]
+    },
+    {
+      "name": "data_product_registry",
+      "displayName": "Data Product Registry",
+      "queryLines": [
+        "SELECT\n",
+        "  product_id,\n",
+        "  product_name,\n",
+        "  domain,\n",
+        "  owner_group,\n",
+        "  status,\n",
+        "  sla_freshness_hours || 'h' AS sla,\n",
+        "  ROUND(quality_score, 1) || '%' AS quality,\n",
+        "  freshness_status,\n",
+        "  row_count,\n",
+        "  consumers\n",
+        "FROM\n",
+        "  data_mesh_hub.platform.data_product_registry\n",
+        "ORDER BY\n",
+        "  product_id"
+      ]
+    },
+    {
+      "name": "contract_compliance",
+      "displayName": "Contract Compliance",
+      "queryLines": [
+        "SELECT\n",
+        "  c.contract_id,\n",
+        "  c.product_name,\n",
+        "  c.consumer_group,\n",
+        "  c.agreed_sla_hours,\n",
+        "  ROUND(o.freshness_hours, 1) AS actual_freshness_hrs,\n",
+        "  CASE\n",
+        "    WHEN o.freshness_hours <= c.agreed_sla_hours THEN 'COMPLIANT'\n",
+        "    ELSE 'VIOLATED'\n",
+        "  END AS sla_status,\n",
+        "  c.quality_threshold_pct,\n",
+        "  ROUND(o.quality_score, 1) AS actual_quality,\n",
+        "  CASE\n",
+        "    WHEN o.quality_score >= c.quality_threshold_pct THEN 'COMPLIANT'\n",
+        "    ELSE 'VIOLATED'\n",
+        "  END AS quality_status\n",
+        "FROM\n",
+        "  data_mesh_hub.platform.data_contracts c\n",
+        "    JOIN (\n",
+        "      SELECT\n",
+        "        product_id,\n",
+        "        quality_score,\n",
+        "        freshness_hours,\n",
+        "        ROW_NUMBER() OVER (PARTITION BY product_id ORDER BY check_timestamp DESC) AS rn\n",
+        "      FROM\n",
+        "        data_mesh_hub.platform.product_observability\n",
+        "    ) o\n",
+        "      ON o.product_id = c.product_id\n",
+        "      AND o.rn = 1\n",
+        "ORDER BY\n",
+        "  c.contract_id"
+      ]
+    },
+    {
+      "name": "data_contracts",
+      "displayName": "Data Contracts",
+      "queryLines": [
+        "SELECT\n",
+        "  contract_id,\n",
+        "  product_name,\n",
+        "  producer_group,\n",
+        "  consumer_group,\n",
+        "  contract_status,\n",
+        "  agreed_sla_hours,\n",
+        "  quality_threshold_pct,\n",
+        "  schema_version,\n",
+        "  escalation_contact\n",
+        "FROM\n",
+        "  data_mesh_hub.platform.data_contracts\n",
+        "ORDER BY\n",
+        "  contract_id"
+      ]
+    },
+    {
+      "name": "maturity_scorecard",
+      "displayName": "Maturity Scorecard",
+      "queryLines": [
+        "SELECT\n",
+        "  domain,\n",
+        "  maturity_level,\n",
+        "  overall_maturity_score,\n",
+        "  ownership_score,\n",
+        "  documentation_score,\n",
+        "  quality_score,\n",
+        "  access_control_score,\n",
+        "  sla_score,\n",
+        "  lineage_score,\n",
+        "  discoverability_score,\n",
+        "  reuse_score,\n",
+        "  active_contracts,\n",
+        "  unique_consumers\n",
+        "FROM\n",
+        "  data_mesh_hub.platform.domain_maturity_scorecard\n",
+        "ORDER BY\n",
+        "  overall_maturity_score DESC"
+      ]
+    },
+    {
+      "name": "lineage_sankey",
+      "displayName": "Cross-Domain Lineage",
+      "queryLines": [
+        "SELECT\n",
+        "  source_layer,\n",
+        "  target_layer,\n",
+        "  record_flow\n",
+        "FROM\n",
+        "  (\n",
+        "    SELECT\n",
+        "      'ADOIT Bronze' AS source_layer,\n",
+        "      'ADOIT Silver' AS target_layer,\n",
+        "      10 AS record_flow\n",
+        "    UNION ALL\n",
+        "    SELECT\n",
+        "      'ADOIT Silver',\n",
+        "      'Application Landscape (Gold)',\n",
+        "      10\n",
+        "    UNION ALL\n",
+        "    SELECT\n",
+        "      'SNOW Bronze',\n",
+        "      'SNOW Silver',\n",
+        "      15\n",
+        "    UNION ALL\n",
+        "    SELECT\n",
+        "      'SNOW Silver',\n",
+        "      'Service Health (Gold)',\n",
+        "      9\n",
+        "    UNION ALL\n",
+        "    SELECT\n",
+        "      'Application Landscape (Gold)',\n",
+        "      'Risk Profile (Cross-Domain)',\n",
+        "      10\n",
+        "    UNION ALL\n",
+        "    SELECT\n",
+        "      'Service Health (Gold)',\n",
+        "      'Risk Profile (Cross-Domain)',\n",
+        "      9\n",
+        "    UNION ALL\n",
+        "    SELECT\n",
+        "      'Risk Profile (Cross-Domain)',\n",
+        "      'CTO Office',\n",
+        "      10\n",
+        "    UNION ALL\n",
+        "    SELECT\n",
+        "      'Risk Profile (Cross-Domain)',\n",
+        "      'Risk Committee',\n",
+        "      10\n",
+        "    UNION ALL\n",
+        "    SELECT\n",
+        "      'Application Landscape (Gold)',\n",
+        "      'CTO Office',\n",
+        "      10\n",
+        "    UNION ALL\n",
+        "    SELECT\n",
+        "      'Service Health (Gold)',\n",
+        "      'CTO Office',\n",
+        "      9\n",
+        "    UNION ALL\n",
+        "    SELECT\n",
+        "      'Service Health (Gold)',\n",
+        "      'Risk Committee',\n",
+        "      9\n",
+        "  )"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "160dc72d",
+      "displayName": "Data Product Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "title",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Data Mesh — Product Health Dashboard\n",
+                "Real-time view across **3 domain catalogs**: `adoit_product` (EA) · `snow_product` (ITSM) · `data_mesh_hub` (Cross-Domain)"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "product_inventory",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "product_inventory",
+                  "fields": [
+                    {
+                      "name": "product_name",
+                      "expression": "`product_name`"
+                    },
+                    {
+                      "name": "domain",
+                      "expression": "`domain`"
+                    },
+                    {
+                      "name": "owner",
+                      "expression": "`owner`"
+                    },
+                    {
+                      "name": "catalog_schema",
+                      "expression": "`catalog_schema`"
+                    },
+                    {
+                      "name": "refresh_sla",
+                      "expression": "`refresh_sla`"
+                    },
+                    {
+                      "name": "record_count",
+                      "expression": "`record_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Data Product Inventory",
+                "showTitle": true
+              },
+              "rowsPerPage": 25,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "product_name",
+                    "displayName": "Product"
+                  },
+                  {
+                    "fieldName": "domain",
+                    "displayName": "Domain"
+                  },
+                  {
+                    "fieldName": "owner",
+                    "displayName": "Owner"
+                  },
+                  {
+                    "fieldName": "catalog_schema",
+                    "displayName": "Catalog.Schema"
+                  },
+                  {
+                    "fieldName": "refresh_sla",
+                    "displayName": "SLA"
+                  },
+                  {
+                    "fieldName": "record_count",
+                    "displayName": "Records"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "risk_overview",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "risk_overview",
+                  "fields": [
+                    {
+                      "name": "risk_level",
+                      "expression": "`risk_level`"
+                    },
+                    {
+                      "name": "sum(app_count)",
+                      "expression": "SUM(`app_count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Application Risk Distribution",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "risk_level",
+                  "displayName": "Risk Level",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "custom-order",
+                      "orderedValues": [
+                        "CRITICAL",
+                        "HIGH",
+                        "MEDIUM",
+                        "LOW"
+                      ]
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(app_count)",
+                  "displayName": "App Count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "risk_level",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Risk Level",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "CRITICAL",
+                        "color": "#D32F2F"
+                      },
+                      {
+                        "value": "HIGH",
+                        "color": "#F57C00"
+                      },
+                      {
+                        "value": "MEDIUM",
+                        "color": "#FBC02D"
+                      },
+                      {
+                        "value": "LOW",
+                        "color": "#388E3C"
+                      }
+                    ]
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 1,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "sla_compliance",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "sla_compliance",
+                  "fields": [
+                    {
+                      "name": "criticality",
+                      "expression": "`criticality`"
+                    },
+                    {
+                      "name": "app_name",
+                      "expression": "`app_name`"
+                    },
+                    {
+                      "name": "sum(sla_compliance_pct)",
+                      "expression": "SUM(`sla_compliance_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "SLA Compliance by Application",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "app_name",
+                  "displayName": "Application",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(sla_compliance_pct)",
+                  "displayName": "SLA Compliance %",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "criticality",
+                  "displayName": "Criticality",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Critical",
+                        "color": "#D32F2F"
+                      },
+                      {
+                        "value": "High",
+                        "color": "#F57C00"
+                      },
+                      {
+                        "value": "Medium",
+                        "color": "#FBC02D"
+                      },
+                      {
+                        "value": "Low",
+                        "color": "#388E3C"
+                      }
+                    ]
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "incident_distribution",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "incident_distribution",
+                  "fields": [
+                    {
+                      "name": "state",
+                      "expression": "`state`"
+                    },
+                    {
+                      "name": "priority_label",
+                      "expression": "`priority_label`"
+                    },
+                    {
+                      "name": "sum(incident_count)",
+                      "expression": "SUM(`incident_count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Incidents by Priority & State",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "priority_label",
+                  "displayName": "Priority",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "custom-order",
+                      "orderedValues": [
+                        "Critical",
+                        "High",
+                        "Medium",
+                        "Low"
+                      ]
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(incident_count)",
+                  "displayName": "Incident Count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "state",
+                  "displayName": "State",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 6,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "apps_by_dept",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "apps_by_dept",
+                  "fields": [
+                    {
+                      "name": "criticality",
+                      "expression": "`criticality`"
+                    },
+                    {
+                      "name": "department",
+                      "expression": "`department`"
+                    },
+                    {
+                      "name": "sum(app_count)",
+                      "expression": "SUM(`app_count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Applications by Department & Criticality",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "department",
+                  "displayName": "Department",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(app_count)",
+                  "displayName": "App Count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "criticality",
+                  "displayName": "Criticality",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Critical",
+                        "color": "#D32F2F"
+                      },
+                      {
+                        "value": "High",
+                        "color": "#F57C00"
+                      },
+                      {
+                        "value": "Medium",
+                        "color": "#FBC02D"
+                      },
+                      {
+                        "value": "Low",
+                        "color": "#388E3C"
+                      }
+                    ]
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 12,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "lineage_sankey",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "lineage_sankey",
+                  "fields": [
+                    {
+                      "name": "source_layer",
+                      "expression": "`source_layer`"
+                    },
+                    {
+                      "name": "target_layer",
+                      "expression": "`target_layer`"
+                    },
+                    {
+                      "name": "sum(record_flow)",
+                      "expression": "SUM(`record_flow`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 1,
+              "frame": {
+                "title": "Cross-Domain Data Lineage",
+                "showTitle": true
+              },
+              "widgetType": "sankey",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(record_flow)",
+                  "displayName": "Record Flow"
+                },
+                "stages": [
+                  {
+                    "fieldName": "source_layer",
+                    "displayName": "Source"
+                  },
+                  {
+                    "fieldName": "target_layer",
+                    "displayName": "Target"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 18,
+            "width": 12,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "quality_governance",
+      "displayName": "Quality & Governance",
+      "layout": [
+        {
+          "widget": {
+            "name": "title",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Quality & Governance\n",
+                "Data quality checks across all products · Access control matrix · Domain ownership model"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "quality_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "quality_checks",
+                  "fields": [
+                    {
+                      "name": "data_product",
+                      "expression": "`data_product`"
+                    },
+                    {
+                      "name": "check_name",
+                      "expression": "`check_name`"
+                    },
+                    {
+                      "name": "check_type",
+                      "expression": "`check_type`"
+                    },
+                    {
+                      "name": "status",
+                      "expression": "`status`"
+                    },
+                    {
+                      "name": "expected_value",
+                      "expression": "`expected_value`"
+                    },
+                    {
+                      "name": "actual_value",
+                      "expression": "`actual_value`"
+                    },
+                    {
+                      "name": "severity",
+                      "expression": "`severity`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Data Quality Check Results",
+                "showTitle": true
+              },
+              "rowsPerPage": 25,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "data_product",
+                    "displayName": "Data Product"
+                  },
+                  {
+                    "fieldName": "check_name",
+                    "displayName": "Check Name"
+                  },
+                  {
+                    "fieldName": "check_type",
+                    "displayName": "Check Type"
+                  },
+                  {
+                    "fieldName": "status",
+                    "displayName": "Status",
+                    "style": {
+                      "type": "basic",
+                      "rules": [
+                        {
+                          "condition": {
+                            "operand": {
+                              "type": "data-value",
+                              "value": "PASS"
+                            },
+                            "operator": "="
+                          },
+                          "backgroundColor": "#C8E6C9",
+                          "foregroundColor": "#1B5E20"
+                        },
+                        {
+                          "condition": {
+                            "operand": {
+                              "type": "data-value",
+                              "value": "FAIL"
+                            },
+                            "operator": "="
+                          },
+                          "backgroundColor": "#FFCDD2",
+                          "foregroundColor": "#B71C1C"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "fieldName": "expected_value",
+                    "displayName": "Expected"
+                  },
+                  {
+                    "fieldName": "actual_value",
+                    "displayName": "Actual"
+                  },
+                  {
+                    "fieldName": "severity",
+                    "displayName": "Severity",
+                    "style": {
+                      "type": "basic",
+                      "rules": [
+                        {
+                          "condition": {
+                            "operand": {
+                              "type": "data-value",
+                              "value": "Critical"
+                            },
+                            "operator": "="
+                          },
+                          "foregroundColor": "#D32F2F"
+                        },
+                        {
+                          "condition": {
+                            "operand": {
+                              "type": "data-value",
+                              "value": "Warning"
+                            },
+                            "operator": "="
+                          },
+                          "foregroundColor": "#F57C00"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "access_title",
+            "multilineTextboxSpec": {
+              "lines": [
+                "### Access Control Matrix — Domain Ownership Model\n",
+                "Each domain team has **full autonomy** over their catalog. Consumers get **read-only access** to gold data products only."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 7,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "access_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "access_controls",
+                  "fields": [
+                    {
+                      "name": "principal",
+                      "expression": "`principal`"
+                    },
+                    {
+                      "name": "catalog",
+                      "expression": "`catalog`"
+                    },
+                    {
+                      "name": "permission",
+                      "expression": "`permission`"
+                    },
+                    {
+                      "name": "role",
+                      "expression": "`role`"
+                    },
+                    {
+                      "name": "description",
+                      "expression": "`description`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Access Control Matrix",
+                "showTitle": true
+              },
+              "rowsPerPage": 25,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "principal",
+                    "displayName": "Principal (Group)"
+                  },
+                  {
+                    "fieldName": "catalog",
+                    "displayName": "Catalog"
+                  },
+                  {
+                    "fieldName": "permission",
+                    "displayName": "Permission",
+                    "style": {
+                      "type": "basic",
+                      "rules": [
+                        {
+                          "condition": {
+                            "operand": {
+                              "type": "data-value",
+                              "value": "ALL PRIVILEGES"
+                            },
+                            "operator": "="
+                          },
+                          "backgroundColor": "#E3F2FD",
+                          "foregroundColor": "#0D47A1"
+                        },
+                        {
+                          "condition": {
+                            "operand": {
+                              "type": "data-value",
+                              "value": "NONE"
+                            },
+                            "operator": "="
+                          },
+                          "backgroundColor": "#FFEBEE",
+                          "foregroundColor": "#B71C1C"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "fieldName": "role",
+                    "displayName": "Role",
+                    "style": {
+                      "type": "basic",
+                      "rules": [
+                        {
+                          "condition": {
+                            "operand": {
+                              "type": "data-value",
+                              "value": "Domain Owner"
+                            },
+                            "operator": "="
+                          },
+                          "foregroundColor": "#1565C0"
+                        },
+                        {
+                          "condition": {
+                            "operand": {
+                              "type": "data-value",
+                              "value": "Consumer"
+                            },
+                            "operator": "="
+                          },
+                          "foregroundColor": "#2E7D32"
+                        },
+                        {
+                          "condition": {
+                            "operand": {
+                              "type": "data-value",
+                              "value": "No Access"
+                            },
+                            "operator": "="
+                          },
+                          "foregroundColor": "#C62828"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "fieldName": "description",
+                    "displayName": "Description"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 8,
+            "width": 12,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "governance_contracts",
+      "displayName": "Governance & Contracts",
+      "layout": [
+        {
+          "widget": {
+            "name": "title",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Governance & Contracts\n",
+                "Data product registry · Domain maturity scorecard · Formalized data contracts · Quality trends · Contract compliance monitoring"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "registry",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "data_product_registry",
+                  "fields": [
+                    {
+                      "name": "product_id",
+                      "expression": "`product_id`"
+                    },
+                    {
+                      "name": "product_name",
+                      "expression": "`product_name`"
+                    },
+                    {
+                      "name": "domain",
+                      "expression": "`domain`"
+                    },
+                    {
+                      "name": "owner_group",
+                      "expression": "`owner_group`"
+                    },
+                    {
+                      "name": "status",
+                      "expression": "`status`"
+                    },
+                    {
+                      "name": "sla",
+                      "expression": "`sla`"
+                    },
+                    {
+                      "name": "quality",
+                      "expression": "`quality`"
+                    },
+                    {
+                      "name": "freshness_status",
+                      "expression": "`freshness_status`"
+                    },
+                    {
+                      "name": "row_count",
+                      "expression": "`row_count`"
+                    },
+                    {
+                      "name": "consumers",
+                      "expression": "`consumers`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Data Product Registry",
+                "showTitle": true
+              },
+              "rowsPerPage": 25,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "product_id",
+                    "displayName": "ID"
+                  },
+                  {
+                    "fieldName": "product_name",
+                    "displayName": "Product"
+                  },
+                  {
+                    "fieldName": "domain",
+                    "displayName": "Domain"
+                  },
+                  {
+                    "fieldName": "owner_group",
+                    "displayName": "Owner"
+                  },
+                  {
+                    "fieldName": "status",
+                    "displayName": "Status"
+                  },
+                  {
+                    "fieldName": "sla",
+                    "displayName": "SLA"
+                  },
+                  {
+                    "fieldName": "quality",
+                    "displayName": "Quality"
+                  },
+                  {
+                    "fieldName": "freshness_status",
+                    "displayName": "Freshness"
+                  },
+                  {
+                    "fieldName": "row_count",
+                    "displayName": "Rows"
+                  },
+                  {
+                    "fieldName": "consumers",
+                    "displayName": "Consumers"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 12,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "maturity",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "maturity_scorecard",
+                  "fields": [
+                    {
+                      "name": "domain",
+                      "expression": "`domain`"
+                    },
+                    {
+                      "name": "maturity_level",
+                      "expression": "`maturity_level`"
+                    },
+                    {
+                      "name": "overall_maturity_score",
+                      "expression": "`overall_maturity_score`"
+                    },
+                    {
+                      "name": "ownership_score",
+                      "expression": "`ownership_score`"
+                    },
+                    {
+                      "name": "documentation_score",
+                      "expression": "`documentation_score`"
+                    },
+                    {
+                      "name": "quality_score",
+                      "expression": "`quality_score`"
+                    },
+                    {
+                      "name": "access_control_score",
+                      "expression": "`access_control_score`"
+                    },
+                    {
+                      "name": "sla_score",
+                      "expression": "`sla_score`"
+                    },
+                    {
+                      "name": "lineage_score",
+                      "expression": "`lineage_score`"
+                    },
+                    {
+                      "name": "discoverability_score",
+                      "expression": "`discoverability_score`"
+                    },
+                    {
+                      "name": "reuse_score",
+                      "expression": "`reuse_score`"
+                    },
+                    {
+                      "name": "active_contracts",
+                      "expression": "`active_contracts`"
+                    },
+                    {
+                      "name": "unique_consumers",
+                      "expression": "`unique_consumers`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Domain Maturity Scorecard",
+                "showTitle": true
+              },
+              "rowsPerPage": 25,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "domain",
+                    "displayName": "Domain"
+                  },
+                  {
+                    "fieldName": "maturity_level",
+                    "displayName": "Level"
+                  },
+                  {
+                    "fieldName": "overall_maturity_score",
+                    "displayName": "Overall"
+                  },
+                  {
+                    "fieldName": "ownership_score",
+                    "displayName": "Ownership"
+                  },
+                  {
+                    "fieldName": "documentation_score",
+                    "displayName": "Docs"
+                  },
+                  {
+                    "fieldName": "quality_score",
+                    "displayName": "Quality"
+                  },
+                  {
+                    "fieldName": "access_control_score",
+                    "displayName": "Access"
+                  },
+                  {
+                    "fieldName": "sla_score",
+                    "displayName": "SLA"
+                  },
+                  {
+                    "fieldName": "lineage_score",
+                    "displayName": "Lineage"
+                  },
+                  {
+                    "fieldName": "discoverability_score",
+                    "displayName": "Discovery"
+                  },
+                  {
+                    "fieldName": "reuse_score",
+                    "displayName": "Reuse"
+                  },
+                  {
+                    "fieldName": "active_contracts",
+                    "displayName": "Contracts"
+                  },
+                  {
+                    "fieldName": "unique_consumers",
+                    "displayName": "Consumers"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 12,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "contracts",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "data_contracts",
+                  "fields": [
+                    {
+                      "name": "contract_id",
+                      "expression": "`contract_id`"
+                    },
+                    {
+                      "name": "product_name",
+                      "expression": "`product_name`"
+                    },
+                    {
+                      "name": "producer_group",
+                      "expression": "`producer_group`"
+                    },
+                    {
+                      "name": "consumer_group",
+                      "expression": "`consumer_group`"
+                    },
+                    {
+                      "name": "contract_status",
+                      "expression": "`contract_status`"
+                    },
+                    {
+                      "name": "agreed_sla_hours",
+                      "expression": "`agreed_sla_hours`"
+                    },
+                    {
+                      "name": "quality_threshold_pct",
+                      "expression": "`quality_threshold_pct`"
+                    },
+                    {
+                      "name": "schema_version",
+                      "expression": "`schema_version`"
+                    },
+                    {
+                      "name": "escalation_contact",
+                      "expression": "`escalation_contact`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Data Contracts",
+                "showTitle": true
+              },
+              "rowsPerPage": 25,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "contract_id",
+                    "displayName": "Contract"
+                  },
+                  {
+                    "fieldName": "product_name",
+                    "displayName": "Product"
+                  },
+                  {
+                    "fieldName": "producer_group",
+                    "displayName": "Producer"
+                  },
+                  {
+                    "fieldName": "consumer_group",
+                    "displayName": "Consumer"
+                  },
+                  {
+                    "fieldName": "contract_status",
+                    "displayName": "Status"
+                  },
+                  {
+                    "fieldName": "agreed_sla_hours",
+                    "displayName": "Agreed SLA (hrs)"
+                  },
+                  {
+                    "fieldName": "quality_threshold_pct",
+                    "displayName": "Quality Threshold %"
+                  },
+                  {
+                    "fieldName": "schema_version",
+                    "displayName": "Schema Ver"
+                  },
+                  {
+                    "fieldName": "escalation_contact",
+                    "displayName": "Escalation"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 10,
+            "width": 12,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "quality_trend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "quality_trend",
+                  "fields": [
+                    {
+                      "name": "product_name",
+                      "expression": "`product_name`"
+                    },
+                    {
+                      "name": "check_date",
+                      "expression": "`check_date`"
+                    },
+                    {
+                      "name": "avg(quality_score)",
+                      "expression": "AVG(`quality_score`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Quality Score Trend (7 Days)",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "check_date",
+                  "displayName": "Date",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "avg(quality_score)",
+                  "displayName": "Quality Score",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "product_name",
+                  "displayName": "Product",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 15,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "compliance",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "contract_compliance",
+                  "fields": [
+                    {
+                      "name": "contract_id",
+                      "expression": "`contract_id`"
+                    },
+                    {
+                      "name": "product_name",
+                      "expression": "`product_name`"
+                    },
+                    {
+                      "name": "consumer_group",
+                      "expression": "`consumer_group`"
+                    },
+                    {
+                      "name": "agreed_sla_hours",
+                      "expression": "`agreed_sla_hours`"
+                    },
+                    {
+                      "name": "actual_freshness_hrs",
+                      "expression": "`actual_freshness_hrs`"
+                    },
+                    {
+                      "name": "sla_status",
+                      "expression": "`sla_status`"
+                    },
+                    {
+                      "name": "quality_threshold_pct",
+                      "expression": "`quality_threshold_pct`"
+                    },
+                    {
+                      "name": "actual_quality",
+                      "expression": "`actual_quality`"
+                    },
+                    {
+                      "name": "quality_status",
+                      "expression": "`quality_status`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Contract Compliance Status",
+                "showTitle": true
+              },
+              "rowsPerPage": 25,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "contract_id",
+                    "displayName": "Contract"
+                  },
+                  {
+                    "fieldName": "product_name",
+                    "displayName": "Product"
+                  },
+                  {
+                    "fieldName": "consumer_group",
+                    "displayName": "Consumer"
+                  },
+                  {
+                    "fieldName": "agreed_sla_hours",
+                    "displayName": "Agreed SLA (hrs)"
+                  },
+                  {
+                    "fieldName": "actual_freshness_hrs",
+                    "displayName": "Actual Freshness (hrs)"
+                  },
+                  {
+                    "fieldName": "sla_status",
+                    "displayName": "SLA Status"
+                  },
+                  {
+                    "fieldName": "quality_threshold_pct",
+                    "displayName": "Quality Threshold %"
+                  },
+                  {
+                    "fieldName": "actual_quality",
+                    "displayName": "Actual Quality"
+                  },
+                  {
+                    "fieldName": "quality_status",
+                    "displayName": "Quality Status"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 15,
+            "width": 6,
+            "height": 6
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}

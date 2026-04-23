@@ -1,0 +1,14 @@
+# Contract Violation Alert — fires when any data contract SLA or quality is violated
+resources:
+  alerts:
+    contract_violation:
+      display_name: "Data Contract Violation Detected"
+      query_id: "5c630b22-2ddc-4e07-bab5-1aa4dd999636"
+      condition:
+        op: GREATER_THAN
+        operand:
+          column:
+            name: violation_count
+        threshold:
+          value:
+            double_value: 0
