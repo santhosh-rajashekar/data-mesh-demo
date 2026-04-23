@@ -24,6 +24,7 @@ variables:
   # Warehouse
   warehouse_id:
     description: "SQL Warehouse ID for dashboard and alert"
+    default: "73c6e5a2e0c009e2"
 
   # Catalog names (customizable per target)
   adoit_catalog:

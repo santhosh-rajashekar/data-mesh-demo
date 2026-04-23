@@ -36,24 +36,27 @@ jobs:
         run: databricks bundle validate
         working-directory: .
         env:
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
           DATABRICKS_BUNDLE_ENV: ${{ github.event.inputs.target }}
 
       - name: Deploy bundle
         run: databricks bundle deploy
         working-directory: .
         env:
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
           DATABRICKS_BUNDLE_ENV: ${{ github.event.inputs.target }}
 
       - name: Run full orchestrator
         run: databricks bundle run data_mesh_orchestrator --refresh-all
         working-directory: .
         env:
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
           DATABRICKS_BUNDLE_ENV: ${{ github.event.inputs.target }}
 
       - name: Summary
