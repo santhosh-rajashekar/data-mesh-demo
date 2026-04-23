@@ -89,7 +89,7 @@ jobs:
         uses: databricks/setup-cli@main
 
       - name: Run orchestrator job
-        run: databricks bundle run data_mesh_orchestrator --refresh-all
+        run: databricks bundle run data_mesh_orchestrator
         working-directory: .
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_PROD }}

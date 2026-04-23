@@ -53,7 +53,7 @@ jobs:
           DATABRICKS_BUNDLE_ENV: ${{ github.event.inputs.target }}
 
       - name: Run full orchestrator
-        run: databricks bundle run data_mesh_orchestrator --refresh-all
+        run: databricks bundle run data_mesh_orchestrator
         working-directory: .
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
