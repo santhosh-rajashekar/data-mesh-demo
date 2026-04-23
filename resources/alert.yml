@@ -7,8 +7,7 @@ resources:
 
       query_text: |
         SELECT
-          COUNT(*) AS violation_count,
-          CONCAT_WS(', ', COLLECT_LIST(c.product_name)) AS violated_products
+          COUNT(*) AS violation_count
         FROM data_mesh_hub.platform.data_contracts c
         JOIN (
           SELECT product_id, quality_score, freshness_hours,
@@ -21,16 +20,14 @@ resources:
       evaluation:
         comparison_operator: GREATER_THAN
         source:
-          type: QUERY_RESULT
-          column_name: violation_count
+          name: violation_count
         threshold:
-          type: DOUBLE
-          value: 0
+          value: 0.0
         empty_result_state: OK
 
       schedule:
-        cron_expression: "0 */30 * * * ?"
+        quartz_cron_schedule: "0 0/30 * * * ?"
+        timezone_id: "UTC"
         pause_status: PAUSED
 
       custom_summary: "Data contract violations detected in the Data Mesh"
-      custom_description: "Products with violations: {{violated_products}}"
