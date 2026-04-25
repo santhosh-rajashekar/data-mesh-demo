@@ -4,7 +4,9 @@
 -- ============================================================
 
 -- Data Product Registry
-INSERT INTO data_mesh_hub.platform.data_product_registry VALUES
+INSERT INTO data_mesh_hub.platform.data_product_registry 
+(product_id, product_name, domain, owner_group, owner_contact, table_name, status, sla_freshness_hours, quality_score, freshness_status, consumer_count, consumers, created_at, updated_at)
+VALUES
 ('DP-001', 'Application Landscape', 'Enterprise Architecture', 'ea-team', 'ea-team@company.com', 'adoit_product.gold.application_landscape', 'published', 4, 98.5, 'fresh', 10, 'cto-office, risk-committee', current_timestamp(), current_timestamp()),
 ('DP-002', 'Service Health', 'IT Service Management', 'itsm-team', 'itsm-team@company.com', 'snow_product.gold.service_health', 'published', 2, 95.0, 'fresh', 9, 'cto-office, risk-committee', current_timestamp(), current_timestamp()),
 ('DP-003', 'Application Risk Profile', 'Cross-Domain', 'data-platform-team', 'platform@company.com', 'data_mesh_hub.cross_domain.application_risk_profile', 'published', 6, 96.0, 'fresh', 10, 'cto-office, risk-committee, compliance', current_timestamp(), current_timestamp());
