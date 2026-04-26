@@ -1,28 +1,16 @@
 # ============================================================
 # Data Mesh Hub — Databricks Asset Bundle
 # ============================================================
-# The Hub provides cross-domain products and platform governance.
-# Domain products (ADOIT, SNOW) are deployed independently from
-# their own workspaces and repos.
-# ============================================================
+# Catalog and schemas created by setup notebook (00_Data_Mesh_Overview_and_Setup)
 
 bundle:
   name: data-mesh-demo
   engine: direct
 
 variables:
-  storage_account:
-    description: "ADLS storage account name for managed locations"
-    default: "sadpsddbxdev"
-  storage_container:
-    description: "ADLS container for data products"
-    default: "data-products"
   warehouse_id:
     description: "SQL Warehouse ID for dashboard and alert"
     default: "73c6e5a2e0c009e2"
-  hub_catalog:
-    description: "Data Mesh hub catalog name"
-    default: "data_mesh_hub"
 
 include:
   - resources/*.yml
@@ -38,8 +26,6 @@ targets:
     mode: production
     workspace:
       host: https://adb-7405616457611961.1.azuredatabricks.net
-    variables:
-      hub_catalog: "data_mesh_hub"
     permissions:
       - user_name: skarotirajashekar@godevsuite060.onmicrosoft.com
         level: CAN_MANAGE
