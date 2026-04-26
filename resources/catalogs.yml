@@ -1,25 +1,6 @@
-# Unity Catalog domain catalogs for Data Mesh
-# Each catalog requires a managed storage location (ADLS)
+# Data Mesh Hub catalog only — domain catalogs are managed by domain workspaces
 resources:
   catalogs:
-    adoit_product:
-      name: ${var.adoit_catalog}
-      comment: "ADOIT Data Product Catalog | Owner: Enterprise Architecture Team | Domain: Enterprise Architecture"
-      storage_root: "abfss://${var.storage_container}@${var.storage_account}.dfs.core.windows.net/${var.adoit_catalog}"
-      properties:
-        domain: "Enterprise Architecture"
-        owner: "EA Team"
-        data_mesh_role: "Domain Catalog"
-
-    snow_product:
-      name: ${var.snow_catalog}
-      comment: "SNOW Data Product Catalog | Owner: IT Service Management Team | Domain: ITSM"
-      storage_root: "abfss://${var.storage_container}@${var.storage_account}.dfs.core.windows.net/${var.snow_catalog}"
-      properties:
-        domain: "IT Service Management"
-        owner: "ITSM Team"
-        data_mesh_role: "Domain Catalog"
-
     data_mesh_hub:
       name: ${var.hub_catalog}
       comment: "Data Mesh Hub Catalog | Owner: Data Platform Team | Domain: Cross-Domain"

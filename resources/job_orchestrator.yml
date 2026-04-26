@@ -1,47 +1,31 @@
-# Master orchestration job — recreates the entire Data Mesh demo
-# Run: databricks bundle run data_mesh_orchestrator
+# Hub orchestration job — runs AFTER domain pipelines complete
+# Domain pipelines (ADOIT, SNOW) run independently in their own workspaces
 resources:
   jobs:
     data_mesh_orchestrator:
-      name: "Data Mesh Demo — Full Setup"
-      description: "Runs all Data Mesh notebooks in dependency order to create catalogs, tables, data, governance, and exchange setup."
-      
+      name: "Data Mesh Hub — Cross-Domain & Governance"
+      description: "Runs hub notebooks: platform setup, cross-domain product, quality, governance, exchange"
+
       tasks:
-        # ── Phase 1: Infrastructure ──
+        # ── Phase 1: Hub Infrastructure ──
         - task_key: setup_infrastructure
-          description: "Create catalogs, schemas, tables, tags, grants, functions"
+          description: "Create hub catalog, platform tables, grants"
           notebook_task:
             notebook_path: ../src/notebooks/00_Data_Mesh_Overview_and_Setup.ipynb
-          
-        # ── Phase 2: Domain Pipelines (parallel) ──
-        - task_key: adoit_pipeline
-          depends_on:
-            - task_key: setup_infrastructure
-          description: "ADOIT: Bronze → Silver → Gold (Application Landscape)"
-          notebook_task:
-            notebook_path: ../src/notebooks/01_ADOIT_Data_Product_Pipeline.ipynb
 
-        - task_key: snow_pipeline
-          depends_on:
-            - task_key: setup_infrastructure
-          description: "SNOW: Bronze → Silver → Gold (Service Health)"
-          notebook_task:
-            notebook_path: ../src/notebooks/02_SNOW_Data_Product_Pipeline.ipynb
-
-        # ── Phase 3: Cross-Domain Product ──
+        # ── Phase 2: Cross-Domain Product ──
         - task_key: cross_domain_product
           depends_on:
-            - task_key: adoit_pipeline
-            - task_key: snow_pipeline
-          description: "Cross-catalog JOIN: Application Risk Profile"
+            - task_key: setup_infrastructure
+          description: "Cross-catalog JOIN: Application Risk Profile (reads from domain gold tables)"
           notebook_task:
             notebook_path: ../src/notebooks/03_Cross_Domain_Data_Product.ipynb
 
-        # ── Phase 4: Quality & Governance ──
+        # ── Phase 3: Quality & Governance ──
         - task_key: data_quality
           depends_on:
             - task_key: cross_domain_product
-          description: "Quality checks across all 3 catalogs"
+          description: "Quality checks across all 3 catalogs (reads domain products)"
           notebook_task:
             notebook_path: ../src/notebooks/04_Data_Quality_Monitoring.ipynb
 
@@ -59,7 +43,7 @@ resources:
           notebook_task:
             notebook_path: ../src/notebooks/08_Advanced_Governance.ipynb
 
-        # ── Phase 5: Distribution ──
+        # ── Phase 4: Distribution ──
         - task_key: private_exchange
           depends_on:
             - task_key: advanced_governance

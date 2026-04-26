@@ -1,12 +1,9 @@
 # ============================================================
-# Data Mesh Demo — Declarative Automation Bundle
+# Data Mesh Hub — Databricks Asset Bundle
 # ============================================================
-# This bundle deploys the complete Data Mesh demo environment:
-# - 3 Unity Catalog domains (adoit_product, snow_product, data_mesh_hub)
-# - 10 notebooks (setup, pipelines, governance, exchange)
-# - 1 Lakeview dashboard (3 pages, 13 datasets)
-# - 1 SQL alert (contract violation monitoring)
-# - 1 orchestration job (runs all notebooks in order)
+# The Hub provides cross-domain products and platform governance.
+# Domain products (ADOIT, SNOW) are deployed independently from
+# their own workspaces and repos.
 # ============================================================
 
 bundle:
@@ -14,26 +11,15 @@ bundle:
   engine: direct
 
 variables:
-  # Storage
   storage_account:
     description: "ADLS storage account name for managed locations"
     default: "sadpsddbxdev"
   storage_container:
     description: "ADLS container for data products"
     default: "data-products"
-  
-  # Warehouse
   warehouse_id:
     description: "SQL Warehouse ID for dashboard and alert"
     default: "73c6e5a2e0c009e2"
-
-  # Catalog names (customizable per target)
-  adoit_catalog:
-    description: "ADOIT domain catalog name"
-    default: "adoit_product"
-  snow_catalog:
-    description: "SNOW domain catalog name"
-    default: "snow_product"
   hub_catalog:
     description: "Data Mesh hub catalog name"
     default: "data_mesh_hub"
@@ -48,21 +34,11 @@ targets:
     workspace:
       host: https://adb-7405616457611961.1.azuredatabricks.net
 
-  staging:
-    workspace:
-      host: https://adb-7405616457611961.1.azuredatabricks.net
-    variables:
-      adoit_catalog: "adoit_product_staging"
-      snow_catalog: "snow_product_staging"
-      hub_catalog: "data_mesh_hub_staging"
-
   prod:
     mode: production
     workspace:
       host: https://adb-7405616457611961.1.azuredatabricks.net
     variables:
-      adoit_catalog: "adoit_product"
-      snow_catalog: "snow_product"
       hub_catalog: "data_mesh_hub"
     permissions:
       - user_name: skarotirajashekar@godevsuite060.onmicrosoft.com
