@@ -66,6 +66,7 @@ jobs:
     name: "Run full Data Mesh setup"
     runs-on: ubuntu-latest
     needs: deploy
+    environment: development
     # Only run orchestrator if explicitly requested via workflow_dispatch
     # or on the first push (when environment needs full setup)
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[full-setup]')
